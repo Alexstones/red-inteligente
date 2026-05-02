@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Multi-tenant: Entidad (Empresa, Sociedad, Público)
+model Tenant {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // empresa, sociedad, publico
+  createdAt   DateTime @default(now())
+  users       User[]
+  nodes       NeuralNode[]
+  wallet      Wallet?
+  proposals   Proposal[]
+}
+
+// Billetera Nativa del Tenant
+model Wallet {
+  id        String   @id @default(uuid())
+  balance   Float    @default(0.0)
+  address   String   @unique
+  tenantId  String   @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  updatedAt DateTime @updatedAt
+}
+
+// Gobernanza: Propuestas para la red
+model Proposal {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  status      String   @default("active") // active, passed, rejected
+  votesFor    Int      @default(0)
+  votesAgainst Int     @default(0)
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+// Representa un dato "vivo" en el sistema
+model NeuralNode {
+  id        String   @id @default(uuid())
+  type      String   // product, invoice, client, etc.
+  data      Json
+  vector    Float[]  // El "sentido espacial" para IA
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+
+  // Sinapsis donde este nodo es origen o destino
+  synapsesSource Synapse[] @relation("SourceNode")
+  synapsesTarget Synapse[] @relation("TargetNode")
+}
+
+// La conexión criptográfica (Blockchain Anchor)
+model Synapse {
+  id          String   @id @default(uuid())
+  hash        String   @unique
+  prevHash    String
+  weight      Float    @default(1.0)
+  payload     Json?
+  
+  sourceId    String
+  sourceNode  NeuralNode @relation("SourceNode", fields: [sourceId], references: [id])
+  
+  targetId    String
+  targetNode  NeuralNode @relation("TargetNode", fields: [targetId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
