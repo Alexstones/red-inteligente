@@ -22,9 +22,14 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">
-        {children}
+      <body className="antialiased selection:bg-primary/30">
+        <div className="noise-overlay" />
+        <div className="fixed inset-0 neural-grid pointer-events-none opacity-40" />
+        <div className="relative z-10 min-h-screen">
+          {children}
+        </div>
       </body>
+
     </html>
   );
 }
