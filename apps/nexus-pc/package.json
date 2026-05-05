@@ -1,0 +1,14 @@
+{
+  "name": "@nexus/pc-app",
+  "version": "1.0.0",
+  "description": "Nexus PC Application - Mining & UI Connection",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "miner": "node src/miner/engine.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  }
+}

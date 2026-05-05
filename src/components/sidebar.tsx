@@ -16,7 +16,8 @@ import {
     BrainCircuit,
     Zap,
     Cpu,
-    Network
+    Network,
+    Building2
 } from "lucide-react";
 
 import { useState } from "react";
@@ -24,13 +25,15 @@ import { mockUser } from "@/lib/mock-data";
 
 const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Empresas", href: "/empresas", icon: Building2 },
     { label: "Billetera", href: "/wallet", icon: Wallet },
-    { label: "Sistema de la Cabeza", href: "/management", icon: BrainCircuit },
-    { label: "Albedrío", href: "/dashboard/decision", icon: Zap, disabled: true },
+    { label: "Gestión Neutral", href: "/management/neutral", icon: BrainCircuit },
+    { label: "Gestión de Bloques", href: "/management/blocks", icon: Boxes },
+    { label: "Gestión de Transacciones", href: "/management/transactions", icon: Zap },
+    { label: "Gestión del Sistema", href: "/management/system", icon: Settings },
     { label: "Oráculo IA", href: "/ai", icon: Cpu },
     { label: "Index de Extremidades", href: "/explorer", icon: Network },
     { label: "Identidad", href: "/identity", icon: Shield },
-    { label: "Ajustes", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -51,7 +54,7 @@ export default function Sidebar() {
                 </div>
                 {!collapsed && (
                     <div className="overflow-hidden">
-                        <p className="font-black text-lg tracking-tighter uppercase italic leading-none">Oculum</p>
+                        <p className="font-black text-lg tracking-tighter uppercase italic leading-none">Nexus</p>
                         <p className="text-[10px] font-mono text-primary uppercase tracking-[0.2em] mt-1">Red Inteligente</p>
                     </div>
                 )}
