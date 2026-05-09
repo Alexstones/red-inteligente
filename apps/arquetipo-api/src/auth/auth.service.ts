@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma.service';
-import { TokenService } from '../governance/governance.service';
+import { WalletService } from '../wallet.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private tokenService: TokenService,
+    private walletService: WalletService,
   ) {}
 
   /**
@@ -31,7 +31,7 @@ export class AuthService {
     });
 
     // 2. Inicializar Billetera Digital (Nativa)
-    await this.tokenService.initWallet(tenant.id);
+    await this.walletService.getWallet(tenant.id);
 
     // 3. Hash de contraseña
     const hashedPassword = await bcrypt.hash(password, 10);

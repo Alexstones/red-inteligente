@@ -8,6 +8,10 @@ import { GovernanceModule } from './governance/governance.module';
 import { P2PClientService } from './p2p-client.service';
 import { AlbedrioModule } from './albedrio/albedrio.module';
 import { BotsModule } from './bots/bots.module';
+import { SystemModule } from './system/system.module';
+import { AIModule } from './ai/ai.module';
+import { TenantModule } from './tenant/tenant.module';
+import { WalletModule } from './wallet/wallet.module';
 
 @Global()
 @Module({
@@ -24,7 +28,11 @@ export class NeuralModule {}
     BusinessModule, 
     GovernanceModule, 
     AlbedrioModule,
-    BotsModule
+    BotsModule,
+    SystemModule,
+    AIModule,
+    TenantModule,
+    WalletModule
   ],
 })
 export class AppModule {}

@@ -1,194 +1,136 @@
 "use client";
 
-import { useState } from "react";
 import { 
-  Cpu, 
-  Send, 
-  Zap, 
-  ShieldCheck,
-  BrainCircuit,
-  Database,
-  Search,
-  Activity,
-  Bot
+  BrainCircuit, 
+  Sparkles, 
+  Activity, 
+  TrendingUp, 
+  ShieldAlert,
+  Zap,
+  Fingerprint,
+  Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
-export default function OraculoPage() {
-  const [prompt, setPrompt] = useState("");
-  const [response, setResponse] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("oraculo"); // oraculo | ia | inteligente | datos
+export default function AIDashboardPage() {
+    const [isLoading, setIsLoading] = useState(true);
 
-  const handleAsk = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Simulación de respuesta para demostración visual de alta calidad
-    setTimeout(() => {
-      setResponse({
-        answer: "El comportamiento de la red muestra una estabilización del 98.4% en los nodos periféricos. Se recomienda una inyección de masa neural en la Cadena de Patrones para optimizar la latencia en el sector ERP.",
-        confidence: 0.99,
-        sources: ["Blockchain", "Neural DB", "ERP Sync"],
-        timestamp: new Date().toLocaleTimeString()
-      });
-      setIsLoading(false);
-    }, 1500);
-  };
+    useEffect(() => {
+        setTimeout(() => setIsLoading(false), 800);
+    }, []);
 
-  const tabs = [
-    { id: "oraculo", label: "Oráculo", icon: Cpu },
-    { id: "ia", label: "IA", icon: BrainCircuit },
-    { id: "inteligente", label: "Sistema Inteligente", icon: Bot },
-    { id: "datos", label: "Sistema de Datos", icon: Database },
-  ];
+    const insights = [
+        { title: "Densidad Sináptica", value: "84%", trend: "+5%", icon: Zap, color: "text-primary" },
+        { title: "Coherencia de Red", value: "99.2%", trend: "Estable", icon: ShieldAlert, color: "text-emerald-400" },
+        { title: "Flujo de Datos", value: "1.2 GB/s", trend: "+12%", icon: Activity, color: "text-secondary" },
+        { title: "Predicción de Carga", value: "Media", trend: "Baja", icon: TrendingUp, color: "text-amber-400" },
+    ];
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-10 animate-fade-in pb-20">
-      <div className="text-center space-y-4">
-        <div className="inline-flex p-3 rounded-2xl bg-primary/10 text-primary border border-primary/20 mb-4">
-          <BrainCircuit className="w-10 h-10 animate-pulse" />
-        </div>
-        <h1 className="text-5xl font-black tracking-tighter text-white uppercase neon-text">
-          Comportamiento de la IA
-        </h1>
-        <p className="text-primary/40 text-xs font-mono uppercase tracking-[0.4em]">
-          Nexus Cognitive Engine
-        </p>
-      </div>
+    return (
+        <div className={cn("space-y-12 pb-20 transition-all duration-700", isLoading ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0")}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 className="text-4xl font-black tracking-tighter uppercase italic text-white flex items-center gap-4">
+                        <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+                        AI <span className="gradient-text">Oráculo</span>
+                    </h1>
+                    <p className="text-[10px] font-mono text-white/40 uppercase tracking-[0.3em] mt-2">
+                        Categorización de Comportamiento Neural y Predicciones Globales
+                    </p>
+                </div>
+                <div className="flex gap-4">
+                    <button className="btn-premium-secondary px-6 text-[10px] uppercase tracking-widest font-bold">Historial de Análisis</button>
+                    <button className="btn-premium-primary px-8 text-[10px] uppercase tracking-widest font-bold">Ejecutar Análisis Global</button>
+                </div>
+            </div>
 
-      {/* Tabs Navigation */}
-      <div className="flex flex-wrap justify-center gap-4">
-        {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-                <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                        "flex items-center gap-3 px-8 py-4 rounded-2xl text-xs font-bold transition-all duration-500 uppercase tracking-widest border",
-                        activeTab === tab.id 
-                            ? "bg-white/10 text-white border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.05)]" 
-                            : "bg-white/[0.02] text-white/40 border-white/5 hover:border-white/10"
-                    )}
-                >
-                    <Icon className={cn("w-5 h-5", activeTab === tab.id ? "text-primary" : "text-white/20")} />
-                    {tab.label}
-                </button>
-            )
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Main Interaction Area */}
-        <div className="lg:col-span-8 space-y-8">
-            {activeTab === 'oraculo' && (
-                <div className="glass-card p-10 border-primary/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <Cpu className="w-32 h-32" />
-                    </div>
-                    
-                    <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-8 italic">Motor de Razonamiento</h2>
-                    
-                    <form onSubmit={handleAsk} className="space-y-6 relative z-10">
-                        <div className="relative">
-                            <textarea 
-                                className="input-field min-h-[160px] pt-6 pr-14 text-lg bg-black/40"
-                                placeholder="Consultar al Oráculo sobre el estado del sistema..."
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                            />
-                            <button 
-                                type="submit" 
-                                disabled={isLoading || !prompt}
-                                className="absolute bottom-6 right-6 p-4 rounded-2xl bg-primary text-primary-foreground hover:scale-105 active:scale-95 transition-all disabled:opacity-30 shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                            >
-                                <Send className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </form>
-
-                    {response && (
-                        <div className="mt-12 space-y-8 animate-slide-up">
-                            <div className="p-8 rounded-3xl bg-white/[0.03] border border-white/10 relative backdrop-blur-xl">
-                                <div className="absolute -top-3 left-8 px-4 py-1.5 rounded-full bg-primary/20 border border-primary/40 text-[10px] font-mono text-primary uppercase tracking-widest font-bold">
-                                    Respuesta Neural
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {insights.map((insight) => {
+                    const Icon = insight.icon;
+                    return (
+                        <div key={insight.title} className="glass-panel p-6 rounded-3xl border-white/5 group hover:-translate-y-1 transition-all duration-500">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className={cn("p-2 rounded-xl bg-white/5 border border-white/10", insight.color)}>
+                                    <Icon className="w-5 h-5" />
                                 </div>
-                                <p className="text-xl text-white/90 leading-relaxed font-medium italic">
-                                    "{response.answer}"
-                                </p>
+                                <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">{insight.trend}</span>
                             </div>
+                            <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-1">{insight.title}</p>
+                            <p className="text-2xl font-black text-white">{insight.value}</p>
+                        </div>
+                    )
+                })}
+            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {[
-                                    { label: "Confianza", val: "99.8%", icon: Zap, color: "text-amber-400" },
-                                    { label: "Fuentes", val: "NeuralDB", icon: ShieldCheck, color: "text-emerald-400" },
-                                    { label: "Latencia", val: "12ms", icon: Activity, color: "text-primary" },
-                                ].map((stat) => (
-                                    <div key={stat.label} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center gap-4">
-                                        <stat.icon className={cn("w-5 h-5", stat.color)} />
-                                        <div>
-                                            <p className="text-[8px] font-mono text-white/20 uppercase tracking-widest">{stat.label}</p>
-                                            <p className="text-xs font-bold text-white">{stat.val}</p>
-                                        </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Behavioral Mapping */}
+                <div className="lg:col-span-8 glass-panel rounded-3xl p-10 border-primary/20 relative overflow-hidden min-h-[500px]">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(0,255,255,0.05)_0%,transparent_70%)]" />
+                    <div className="relative z-10 space-y-8">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-white uppercase italic tracking-tight">Mapeo de Comportamiento</h2>
+                            <div className="flex items-center gap-4 text-[9px] font-mono uppercase tracking-widest text-white/40">
+                                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary" /> Transaccional</span>
+                                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-secondary" /> Operativo</span>
+                                <span className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-400" /> Riesgo</span>
+                            </div>
+                        </div>
+
+                        {/* Visual Mapping Placeholder */}
+                        <div className="flex items-center justify-center h-[300px] border border-white/5 rounded-3xl bg-black/20">
+                            <div className="relative">
+                                <div className="w-32 h-32 rounded-full border-4 border-primary/20 animate-spin-slow flex items-center justify-center">
+                                    <div className="w-20 h-20 rounded-full border border-secondary/40 flex items-center justify-center animate-reverse-spin">
+                                        <Fingerprint className="w-8 h-8 text-white/40" />
                                     </div>
-                                ))}
+                                </div>
+                                <div className="absolute -top-10 -left-10 p-2 glass-panel rounded-lg text-[8px] font-mono uppercase text-primary border-primary/40">Retail Flow</div>
+                                <div className="absolute -bottom-10 -right-10 p-2 glass-panel rounded-lg text-[8px] font-mono uppercase text-secondary border-secondary/40">Stable Nodes</div>
+                                <div className="absolute top-0 -right-24 p-2 glass-panel rounded-lg text-[8px] font-mono uppercase text-amber-400 border-amber-400/40">Risk Detected (Low)</div>
                             </div>
                         </div>
-                    )}
-                </div>
-            )}
-
-            {activeTab !== 'oraculo' && (
-                <div className="glass-card p-20 flex flex-col items-center justify-center text-center space-y-6">
-                    <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center animate-pulse">
-                        <Activity className="w-10 h-10 text-white/20" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-bold text-white uppercase tracking-widest">Sección en Sincronización</h3>
-                        <p className="text-white/40 text-sm font-mono mt-2">Accediendo a la Cadena de {activeTab.toUpperCase()}...</p>
                     </div>
                 </div>
-            )}
-        </div>
 
-        {/* Sidebar Context */}
-        <div className="lg:col-span-4 space-y-8">
-            <div className="glass-card border-white/5 bg-white/[0.01]">
-                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/80 mb-8 border-b border-white/5 pb-4">Actividad Cognitiva</h3>
-                <div className="space-y-6">
-                    {[
-                        { label: "Procesamiento IA", val: "88%", color: "bg-primary" },
-                        { label: "Análisis de Datos", val: "72%", color: "bg-secondary" },
-                        { label: "Decisiones Auto", val: "94%", color: "bg-emerald-400" },
-                    ].map((item) => (
-                        <div key={item.label} className="space-y-3">
-                            <div className="flex justify-between text-[10px] font-mono uppercase tracking-widest text-white/40">
-                                <span>{item.label}</span>
-                                <span className="text-white">{item.val}</span>
-                            </div>
-                            <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                                <div className={cn("h-full transition-all duration-1000", item.color)} style={{ width: item.val }} />
-                            </div>
+                {/* Categorization Sidebar */}
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="glass-panel rounded-3xl p-8 space-y-6 border-white/5">
+                        <h3 className="text-sm font-black text-white uppercase italic tracking-widest flex items-center gap-3">
+                            <Layers className="w-5 h-5 text-primary" /> Categorías Detectadas
+                        </h3>
+                        <div className="space-y-4">
+                            {[
+                                { name: "High Value Tx", pct: 15, color: "bg-primary" },
+                                { name: "Regular Commerce", pct: 65, color: "bg-emerald-400" },
+                                { name: "System Maintenance", pct: 12, color: "bg-secondary" },
+                                { name: "Anomalies", pct: 8, color: "bg-red-400" },
+                            ].map((cat) => (
+                                <div key={cat.name} className="space-y-2">
+                                    <div className="flex justify-between text-[9px] font-mono uppercase tracking-widest text-white/40">
+                                        <span>{cat.name}</span>
+                                        <span className="text-white/80">{cat.pct}%</span>
+                                    </div>
+                                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div className={cn("h-full rounded-full transition-all duration-1000", cat.color)} style={{ width: `${cat.pct}%` }} />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            </div>
+                    </div>
 
-            <div className="glass-card bg-primary/5 border-primary/10">
-                <div className="flex items-center gap-3 mb-6">
-                    <Search className="w-4 h-4 text-primary" />
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-white">Últimas Consultas</h3>
-                </div>
-                <div className="space-y-3">
-                    {["Estado del ERP", "Predicción de Stock", "Balance Neural"].map((q) => (
-                        <div key={q} className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-[10px] font-mono text-white/60 hover:text-white hover:bg-white/10 cursor-pointer transition-all">
-                            &gt; {q}
+                    <div className="glass-panel rounded-3xl p-8 space-y-4 border-primary/20 bg-primary/5">
+                        <div className="flex items-center gap-3 text-primary">
+                            <BrainCircuit className="w-5 h-5 animate-pulse" />
+                            <p className="text-[10px] font-mono font-black uppercase tracking-widest">Sugerencia del Oráculo</p>
                         </div>
-                    ))}
+                        <p className="text-xs text-white/70 leading-relaxed italic">
+                            "Se observa una alta densidad en la red de Querétaro. Sugerencia: Redistribuir nodos de carga a la periferia para mantener coherencia por encima del 99%."
+                        </p>
+                        <button className="w-full btn-premium-primary py-3 text-[10px] uppercase font-bold tracking-widest mt-2">Aplicar Optimización</button>
+                    </div>
                 </div>
             </div>
         </div>
-      </div>
-    </div>
-  );
+    )
 }

@@ -5,19 +5,18 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
-    Boxes,
     Hexagon,
     LogOut,
     Settings,
-    Shield,
+    ShieldCheck,
     ChevronLeft,
     ChevronRight,
     Wallet,
     BrainCircuit,
-    Zap,
     Cpu,
-    Network,
-    Building2
+    Building2,
+    Globe,
+    Users
 } from "lucide-react";
 
 import { useState } from "react";
@@ -25,15 +24,14 @@ import { mockUser } from "@/lib/mock-data";
 
 const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Cortex Visualizer", href: "/cortex", icon: Globe },
     { label: "Empresas", href: "/empresas", icon: Building2 },
     { label: "Billetera", href: "/wallet", icon: Wallet },
-    { label: "Gestión Neutral", href: "/management/neutral", icon: BrainCircuit },
-    { label: "Gestión de Bloques", href: "/management/blocks", icon: Boxes },
-    { label: "Gestión de Transacciones", href: "/management/transactions", icon: Zap },
-    { label: "Gestión del Sistema", href: "/management/system", icon: Settings },
-    { label: "Oráculo IA", href: "/ai", icon: Cpu },
-    { label: "Index de Extremidades", href: "/explorer", icon: Network },
-    { label: "Identidad", href: "/identity", icon: Shield },
+    { label: "Gobernanza DAO", href: "/gobernanza", icon: Users },
+    { label: "Minería PC", href: "/mineria", icon: Cpu },
+    { label: "Sentinel Security", href: "/seguridad", icon: ShieldCheck },
+    { label: "Oráculo IA", href: "/ai", icon: BrainCircuit },
+    { label: "Neural Management", href: "/management/neutral", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -100,18 +98,29 @@ export default function Sidebar() {
                     collapsed ? "justify-center" : ""
                 )}>
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-transparent border border-white/10 flex items-center justify-center font-black text-xs">
-                        {mockUser.name.charAt(0)}
+                        {typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}').name?.charAt(0) || mockUser.name.charAt(0) : 'U'}
                     </div>
                     {!collapsed && (
                         <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-black uppercase tracking-tight truncate">{mockUser.name}</p>
-                            <p className="text-[8px] font-mono text-white/30 uppercase tracking-widest truncate">{mockUser.tenantName}</p>
+                            <p className="text-[10px] font-black uppercase tracking-tight truncate">
+                                {typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}').name || mockUser.name : mockUser.name}
+                            </p>
+                            <p className="text-[8px] font-mono text-white/30 uppercase tracking-widest truncate">
+                                {typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}').tenant?.name || mockUser.tenantName : mockUser.tenantName}
+                            </p>
                         </div>
                     )}
                     {!collapsed && (
-                        <Link href="/login" className="text-white/20 hover:text-destructive transition-colors p-2">
+                        <button 
+                            onClick={() => {
+                                localStorage.removeItem('access_token');
+                                localStorage.removeItem('user');
+                                window.location.href = '/login';
+                            }}
+                            className="text-white/20 hover:text-destructive transition-colors p-2"
+                        >
                             <LogOut className="w-4 h-4" />
-                        </Link>
+                        </button>
                     )}
                 </div>
             </div>

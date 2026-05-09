@@ -1,11 +1,9 @@
-import { Module, Global } from '@nestjs/common';
-import { GovernanceService, TokenService } from './governance.service';
+import { Module } from '@nestjs/common';
 import { GovernanceController } from './governance.controller';
+import { GovernanceService } from './governance.service';
 
-@Global()
 @Module({
-  providers: [GovernanceService, TokenService],
   controllers: [GovernanceController],
-  exports: [GovernanceService, TokenService],
+  providers: [GovernanceService],
 })
 export class GovernanceModule {}

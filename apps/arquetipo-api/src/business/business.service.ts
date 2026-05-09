@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { NodesService } from '../nodes/nodes.service';
 import { PrismaService } from '../prisma.service';
 import { SynapseService } from '../synapse.service';
+import { WalletService } from '../wallet.service';
 
 @Injectable()
 export class BusinessService {
@@ -9,18 +10,24 @@ export class BusinessService {
     private nodesService: NodesService,
     private prisma: PrismaService,
     private synapseService: SynapseService,
+    private walletService: WalletService,
   ) {}
 
   /**
    * Crea un producto (Neurona de Inventario)
    */
   async addProduct(tenantId: string, productData: { name: string; price: number; stock: number }) {
-    return this.nodesService.createNode(
+    const node = await this.nodesService.createNode(
       tenantId,
       'INVENTORY',
       productData,
       [0.1, 0.5, 0.9] // Vector simulado (Categoría, Precio, Stock)
     );
+
+    // Al añadir producto, se genera una pequeña recompensa por "expandir la red"
+    await this.walletService.addReward(tenantId, 0.1, 'INVENTORY_EXPANSION');
+
+    return node;
   }
 
   /**
@@ -57,9 +64,13 @@ export class BusinessService {
     await this.recordFinancialEntry(tenantId, {
       type: 'REVENUE',
       amount: saleData.total,
-      description: `Ingreso por venta de ${productNode.data.name}`,
+      description: `Ingreso por venta de ${(productNode.data as any).name}`,
       referenceId: saleNode.id
     });
+
+    // RECOMPENSA NEURAL: 1% del total de la venta en tokens RI
+    const reward = (saleData.total || 0) * 0.01;
+    await this.walletService.addReward(tenantId, reward, `SALE_REWARD_${saleNode.id.slice(0, 8)}`);
 
     return { saleNode, productNode };
   }
@@ -85,5 +96,41 @@ export class BusinessService {
     );
 
     return financeNode;
+  }
+
+  async getInventory(tenantId: string) {
+    return this.prisma.neuralNode.findMany({
+      where: { tenantId, type: 'INVENTORY' }
+    });
+  }
+
+  async getSales(tenantId: string) {
+    return this.prisma.neuralNode.findMany({
+      where: { tenantId, type: 'SALE' },
+      include: { synapsesSource: true }
+    });
+  }
+
+  async getFinance(tenantId: string) {
+    return this.prisma.neuralNode.findMany({
+      where: { tenantId, type: 'FINANCE' }
+    });
+  }
+
+  async updateReputationFromAI(tenantId: string, analysisResults: any) {
+    // Lógica para ajustar la reputación basada en los resultados del oráculo
+    let adjustment = 0;
+    
+    if (analysisResults.global_status === 'STABLE') adjustment += 0.5;
+    if (analysisResults.results?.some(r => r.riskLevel === 'HIGH')) adjustment -= 2.0;
+    if (analysisResults.results?.some(r => r.category === 'HIGH_VALUE_TRANSACTION')) adjustment += 1.0;
+
+    const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId } });
+    const newReputation = Math.min(100, Math.max(0, (tenant?.reputation || 100) + adjustment));
+
+    return this.prisma.tenant.update({
+      where: { id: tenantId },
+      data: { reputation: newReputation }
+    });
   }
 }

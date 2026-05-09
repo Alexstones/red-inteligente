@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Synapse, Obelisk } from '@red-inteligente/neural-core';
-import { TokenService } from './governance/token.service';
+import { WalletService } from './wallet.service';
 import { P2PClientService } from './p2p-client.service';
 import { AlbedrioService } from './albedrio/albedrio.service';
 
@@ -10,7 +10,7 @@ export class SynapseService implements OnModuleInit {
   private lastSynapseHash: string = '0';
 
   constructor(
-    private tokenService: TokenService,
+    private walletService: WalletService,
     private p2pClient: P2PClientService,
     private albedrio: AlbedrioService
   ) {}
@@ -35,7 +35,7 @@ export class SynapseService implements OnModuleInit {
     this.lastSynapseHash = synapse.hash;
     
     // Minería de datos: Recompensar al nodo/tenant
-    await this.tokenService.rewardSynapse(tenantId, weight);
+    await this.walletService.addReward(tenantId, weight, 'SYNAPSE_MINING');
     
     console.log(`[Sinapsis] Evento registrado: ${synapse.hash.substring(0, 8)}...`);
     

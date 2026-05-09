@@ -1,27 +1,24 @@
-import { Controller, Post, Get, Body, UseGuards, Request, Param } from '@nestjs/common';
-import { GovernanceService, TokenService } from './governance.service';
+import { Controller, Get, Post, Body, UseGuards, Request, Param } from '@nestjs/common';
+import { GovernanceService } from './governance.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('governance')
 @UseGuards(JwtAuthGuard)
 export class GovernanceController {
-  constructor(
-    private governanceService: GovernanceService,
-    private tokenService: TokenService
-  ) {}
+  constructor(private governanceService: GovernanceService) {}
 
-  @Get('balance')
-  async getBalance(@Request() req) {
-    return this.tokenService.getBalance(req.user.tenantId);
+  @Get('proposals')
+  async getProposals() {
+    return this.governanceService.getProposals();
   }
 
   @Post('proposals')
-  async createProposal(@Request() req, @Body() body: any) {
-    return this.governanceService.createProposal(req.user.tenantId, body.title, body.description);
+  async createProposal(@Request() req, @Body() data: { title: string; description: string }) {
+    return this.governanceService.createProposal(req.user.tenantId, data);
   }
 
   @Post('proposals/:id/vote')
-  async vote(@Param('id') id: string, @Body() body: { type: 'for' | 'against' }) {
-    return this.governanceService.vote(id, body.type);
+  async vote(@Request() req, @Param('id') id: string, @Body() data: { vote: 'for' | 'against' }) {
+    return this.governanceService.vote(req.user.tenantId, id, data.vote);
   }
 }

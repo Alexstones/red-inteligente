@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:3001';
 
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
@@ -48,5 +48,36 @@ export const nodesApi = {
   recordSale: (sale: any) => apiFetch('/business/sale', {
     method: 'POST',
     body: JSON.stringify(sale),
+  }),
+  getInventory: () => apiFetch('/business/inventory'),
+  getSales: () => apiFetch('/business/sales'),
+  getFinance: () => apiFetch('/business/finance'),
+};
+
+export const tenantsApi = {
+  getTenants: () => apiFetch('/tenants'),
+  createTenant: (data: any) => apiFetch('/tenants', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+};
+
+export const walletApi = {
+  getWallet: () => apiFetch('/wallet'),
+  transfer: (data: { toAddress: string, amount: number }) => apiFetch('/wallet/transfer', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+};
+
+export const governanceApi = {
+  getProposals: () => apiFetch('/governance/proposals'),
+  createProposal: (data: any) => apiFetch('/governance/proposals', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  vote: (id: string, vote: 'for' | 'against') => apiFetch(`/governance/proposals/${id}/vote`, {
+    method: 'POST',
+    body: JSON.stringify({ vote }),
   }),
 };

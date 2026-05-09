@@ -41,12 +41,29 @@ export default function RegisterPage() {
     const [selectedTenant, setSelectedTenant] = useState("empresa");
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
-            router.push("/dashboard");
-        }, 800);
+        try {
+            const name = (e.target as any).name.value;
+            const organizationName = (e.target as any).org.value;
+            const email = (e.target as any).email.value;
+            const password = (e.target as any).password.value;
+            
+            await authApi.register({ 
+                name, 
+                organizationName, 
+                email, 
+                password,
+                tenantType: selectedTenant 
+            });
+            
+            router.push("/login");
+        } catch (error) {
+            console.error("Error en registro:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

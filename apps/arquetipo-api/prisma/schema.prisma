@@ -12,6 +12,10 @@ model Tenant {
   id          String   @id @default(uuid())
   name        String
   type        String   // empresa, sociedad, publico
+  rfc         String?
+  sector      String?
+  location    String?
+  reputation  Float    @default(100.0)
   createdAt   DateTime @default(now())
   users       User[]
   nodes       NeuralNode[]
@@ -26,6 +30,7 @@ model Wallet {
   address   String   @unique
   tenantId  String   @unique
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  transactions Transaction[]
   updatedAt DateTime @updatedAt
 }
 
@@ -60,8 +65,9 @@ model NeuralNode {
   data      Json
   vector    Float[]  // El "sentido espacial" para IA
   tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  createdAt DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  neuralIndex String?  // HEAD, BACKBONE, LIMB
+  createdAt   DateTime @default(now())
 
   // Sinapsis donde este nodo es origen o destino
   synapsesSource Synapse[] @relation("SourceNode")
@@ -82,5 +88,19 @@ model Synapse {
   targetId    String
   targetNode  NeuralNode @relation("TargetNode", fields: [targetId], references: [id])
   
+  createdAt   DateTime @default(now())
+}
+
+// Registro de transacciones de tokens RI
+model Transaction {
+  id          String   @id @default(uuid())
+  amount      Float
+  type        String   // REWARD, TRANSFER, PAYMENT
+  status      String   @default("completed")
+  fromAddress String?
+  toAddress   String
+  metadata    Json?
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
   createdAt   DateTime @default(now())
 }

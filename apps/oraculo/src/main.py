@@ -35,6 +35,52 @@ async def ingest_synapse(data: SynapseData):
 
 import httpx
 
+@app.post("/categorize")
+async def categorize_behavior(tenant_id: str, nodes: List[dict]):
+    """
+    Categoriza el comportamiento de los nodos de un tenant.
+    """
+    categorized = []
+    for node in nodes:
+        node_type = node.get("type", "UNKNOWN")
+        data = node.get("data", {})
+        
+        # Lógica de clasificación heurística (Simulando ML)
+        category = "NEUTRAL"
+        risk_level = "LOW"
+        
+        if node_type == "SALE":
+            total = data.get("total", 0)
+            if total > 10000:
+                category = "HIGH_VALUE_TRANSACTION"
+            else:
+                category = "RETAIL_FLOW"
+        elif node_type == "INVENTORY":
+            stock = data.get("stock", 0)
+            if stock < 5:
+                category = "CRITICAL_STOCK"
+                risk_level = "HIGH"
+        elif node_type == "FINANCE":
+            amount = data.get("amount", 0)
+            if amount < 0:
+                category = "EXPENSE_PATTERN"
+            else:
+                category = "REVENUE_PATTERN"
+                
+        categorized.append({
+            "nodeId": node.get("id"),
+            "category": category,
+            "riskLevel": risk_level,
+            "insight": f"Analizado por Oráculo v1: Patrón detectado en {node_type}"
+        })
+        
+    return {
+        "tenant_id": tenant_id,
+        "analysis_timestamp": "2026-05-09T00:00:00Z",
+        "results": categorized,
+        "global_status": "STABLE" if len(nodes) > 0 else "INACTIVE"
+    }
+
 @app.post("/reason", response_model=Response)
 async def reason(query: Query):
     # Conexión Neural: Obtener estado de la blockchain

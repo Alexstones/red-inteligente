@@ -18,9 +18,16 @@ import {
     XCircle,
     Filter,
     ChevronRight,
+    Boxes,
+    Package,
+    CreditCard,
+    History,
+    ArrowLeft,
+    Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { tenantsApi, nodesApi } from "@/lib/api";
 
 interface Empresa {
     id: string;
@@ -37,121 +44,6 @@ interface Empresa {
     did: string;
 }
 
-const mockEmpresas: Empresa[] = [
-    {
-        id: "emp_001",
-        name: "Red Inteligente Corp",
-        rfc: "RIC-260501-XX1",
-        sector: "Tecnología",
-        location: "Monterrey, MX",
-        status: "activa",
-        nodos: 12,
-        sinapsisActivas: 1284,
-        ingresoMensual: 2_450_320,
-        fechaRegistro: "2025-08-15T00:00:00Z",
-        reputacion: 98,
-        did: "did:neural:0x8f2e...a6b1",
-    },
-    {
-        id: "emp_002",
-        name: "Nexus Industries",
-        rfc: "NIN-251203-AB2",
-        sector: "Manufactura",
-        location: "CDMX, MX",
-        status: "activa",
-        nodos: 8,
-        sinapsisActivas: 856,
-        ingresoMensual: 1_850_000,
-        fechaRegistro: "2025-11-02T00:00:00Z",
-        reputacion: 95,
-        did: "did:neural:0x3c7d...9e1f",
-    },
-    {
-        id: "emp_003",
-        name: "Quantum Solutions SA",
-        rfc: "QSS-260115-CD3",
-        sector: "Consultoría",
-        location: "Guadalajara, MX",
-        status: "activa",
-        nodos: 5,
-        sinapsisActivas: 432,
-        ingresoMensual: 980_500,
-        fechaRegistro: "2026-01-15T00:00:00Z",
-        reputacion: 91,
-        did: "did:neural:0xa1b2...c3d4",
-    },
-    {
-        id: "emp_004",
-        name: "BlockTrade MX",
-        rfc: "BTM-260220-EF4",
-        sector: "Fintech",
-        location: "Querétaro, MX",
-        status: "pendiente",
-        nodos: 3,
-        sinapsisActivas: 128,
-        ingresoMensual: 450_000,
-        fechaRegistro: "2026-02-20T00:00:00Z",
-        reputacion: 78,
-        did: "did:neural:0xd5e6...f7a8",
-    },
-    {
-        id: "emp_005",
-        name: "CryptoVerse Labs",
-        rfc: "CVL-260310-GH5",
-        sector: "Blockchain",
-        location: "Puebla, MX",
-        status: "activa",
-        nodos: 6,
-        sinapsisActivas: 567,
-        ingresoMensual: 1_200_750,
-        fechaRegistro: "2026-03-10T00:00:00Z",
-        reputacion: 88,
-        did: "did:neural:0xb9c0...d1e2",
-    },
-    {
-        id: "emp_006",
-        name: "DataMind Corp",
-        rfc: "DMC-260401-IJ6",
-        sector: "IA / ML",
-        location: "Tijuana, MX",
-        status: "suspendida",
-        nodos: 0,
-        sinapsisActivas: 0,
-        ingresoMensual: 0,
-        fechaRegistro: "2026-04-01T00:00:00Z",
-        reputacion: 45,
-        did: "did:neural:0xf3a4...b5c6",
-    },
-    {
-        id: "emp_007",
-        name: "Neural Commerce",
-        rfc: "NCO-260412-KL7",
-        sector: "E-Commerce",
-        location: "León, MX",
-        status: "activa",
-        nodos: 4,
-        sinapsisActivas: 312,
-        ingresoMensual: 780_000,
-        fechaRegistro: "2026-04-12T00:00:00Z",
-        reputacion: 85,
-        did: "did:neural:0xd7e8...f9a0",
-    },
-    {
-        id: "emp_008",
-        name: "Orbital Systems",
-        rfc: "OSY-260425-MN8",
-        sector: "Aeroespacial",
-        location: "Chihuahua, MX",
-        status: "pendiente",
-        nodos: 2,
-        sinapsisActivas: 64,
-        ingresoMensual: 320_000,
-        fechaRegistro: "2026-04-25T00:00:00Z",
-        reputacion: 72,
-        did: "did:neural:0x1b2c...3d4e",
-    },
-];
-
 const statusConfig = {
     activa: { label: "Activa", icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
     pendiente: { label: "Pendiente", icon: Clock, color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20" },
@@ -163,12 +55,83 @@ export default function EmpresasPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState<string>("todos");
     const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
+    const [empresas, setEmpresas] = useState<Empresa[]>([]);
+    const [showNewModal, setShowNewModal] = useState(false);
+    const [newName, setNewName] = useState("");
+    const [newRFC, setNewRFC] = useState("");
+    const [newSector, setNewSector] = useState("");
+    const [newLocation, setNewLocation] = useState("");
+    const [viewMode, setViewMode] = useState<"directory" | "detail">("directory");
+    const [inventory, setInventory] = useState<any[]>([]);
+    const [sales, setSales] = useState<any[]>([]);
+
+    const handleCreateEmpresa = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await tenantsApi.createTenant({ 
+                name: newName, 
+                type: "empresa",
+                rfc: newRFC,
+                sector: newSector,
+                location: newLocation
+            });
+            setNewName("");
+            setNewRFC("");
+            setNewSector("");
+            setNewLocation("");
+            setShowNewModal(false);
+            fetchEmpresas();
+        } catch (error) {
+            console.error("Error creating tenant:", error);
+        }
+    };
+
+    const enterDetailMode = async (empresa: Empresa) => {
+        setSelectedEmpresa(empresa);
+        setViewMode("detail");
+        try {
+            const [inv, sls] = await Promise.all([
+                nodesApi.getInventory(),
+                nodesApi.getSales()
+            ]);
+            setInventory(inv);
+            setSales(sls);
+        } catch (error) {
+            console.error("Error fetching detail data:", error);
+        }
+    };
+
+    const fetchEmpresas = async () => {
+        setIsLoading(true);
+        try {
+            const data = await tenantsApi.getTenants();
+            const transformed = data.map((t: any) => ({
+                id: t.id,
+                name: t.name,
+                rfc: t.rfc || "N/A",
+                sector: t.sector || "General",
+                location: t.location || "Global",
+                status: "activa",
+                nodos: t._count?.nodes || 0,
+                sinapsisActivas: Math.floor(Math.random() * 1000), // Todavía simulado
+                ingresoMensual: Math.floor(Math.random() * 1000000), // Todavía simulado
+                fechaRegistro: t.createdAt,
+                reputacion: t.reputation,
+                did: `did:neural:${t.id.slice(0, 8)}`,
+            }));
+            setEmpresas(transformed);
+        } catch (error) {
+            console.error("Error fetching tenants:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        setTimeout(() => setIsLoading(false), 500);
+        fetchEmpresas();
     }, []);
 
-    const filteredEmpresas = mockEmpresas.filter((emp) => {
+    const filteredEmpresas = empresas.filter((emp) => {
         const matchesSearch = emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             emp.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
             emp.rfc.toLowerCase().includes(searchTerm.toLowerCase());
@@ -176,10 +139,10 @@ export default function EmpresasPage() {
         return matchesSearch && matchesFilter;
     });
 
-    const totalEmpresas = mockEmpresas.length;
-    const empresasActivas = mockEmpresas.filter((e) => e.status === "activa").length;
-    const totalNodos = mockEmpresas.reduce((sum, e) => sum + e.nodos, 0);
-    const ingresoTotal = mockEmpresas.reduce((sum, e) => sum + e.ingresoMensual, 0);
+    const totalEmpresas = empresas.length;
+    const empresasActivas = empresas.filter((e) => e.status === "activa").length;
+    const totalNodos = empresas.reduce((sum, e) => sum + e.nodos, 0);
+    const ingresoTotal = empresas.reduce((sum, e) => sum + e.ingresoMensual, 0);
 
     const formatNumber = (n: number) =>
         new Intl.NumberFormat("es-MX").format(n);
@@ -189,6 +152,8 @@ export default function EmpresasPage() {
 
     return (
         <div className={cn("space-y-12 pb-20 transition-all duration-700", isLoading ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0")}>
+            {viewMode === "directory" ? (
+                <>
             {/* --- Hero Header --- */}
             <div className="relative pt-8">
                 <div className="space-y-2">
@@ -206,12 +171,90 @@ export default function EmpresasPage() {
                         <Filter className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                         <span className="text-xs uppercase tracking-widest">Filtrar</span>
                     </button>
-                    <button className="btn-premium-primary px-8 group">
+                    <button 
+                        onClick={() => setShowNewModal(true)}
+                        className="btn-premium-primary px-8 group"
+                    >
                         <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
                         <span className="text-xs uppercase tracking-widest">Nueva Empresa</span>
                     </button>
                 </div>
             </div>
+
+            {/* --- Modal Nueva Empresa --- */}
+            {showNewModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="glass-panel p-10 rounded-3xl w-full max-w-md border-primary/20 space-y-8 animate-in zoom-in-95 duration-300">
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-black uppercase italic tracking-tight text-white">Registrar Nodo Empresarial</h2>
+                            <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Inicializando protocolo de identidad Nexus</p>
+                        </div>
+                        
+                        <form onSubmit={handleCreateEmpresa} className="space-y-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-mono uppercase tracking-widest text-primary font-bold">Nombre de la Entidad</label>
+                                    <input 
+                                        type="text" 
+                                        value={newName}
+                                        onChange={(e) => setNewName(e.target.value)}
+                                        placeholder="Ej. Cyberdyne Systems"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-primary/40 transition-all"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-mono uppercase tracking-widest text-white/40 font-bold">RFC</label>
+                                        <input 
+                                            type="text" 
+                                            value={newRFC}
+                                            onChange={(e) => setNewRFC(e.target.value)}
+                                            placeholder="AAA-000000-XX0"
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-primary/40 transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-mono uppercase tracking-widest text-white/40 font-bold">Sector</label>
+                                        <input 
+                                            type="text" 
+                                            value={newSector}
+                                            onChange={(e) => setNewSector(e.target.value)}
+                                            placeholder="Ej. Tecnología"
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-primary/40 transition-all"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-mono uppercase tracking-widest text-white/40 font-bold">Ubicación</label>
+                                    <input 
+                                        type="text" 
+                                        value={newLocation}
+                                        onChange={(e) => setNewLocation(e.target.value)}
+                                        placeholder="Ej. Querétaro, MX"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-primary/40 transition-all"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowNewModal(false)}
+                                    className="flex-1 btn-premium-secondary py-4 text-[10px] uppercase font-bold tracking-widest"
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    type="submit"
+                                    className="flex-1 btn-premium-primary py-4 text-[10px] uppercase font-bold tracking-widest"
+                                >
+                                    Crear Nodo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* --- Stats Grid --- */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -417,7 +460,10 @@ export default function EmpresasPage() {
                                     </div>
                                 </div>
 
-                                <button className="w-full btn-premium-primary py-4 justify-center group">
+                                <button 
+                                    onClick={() => enterDetailMode(selectedEmpresa)}
+                                    className="w-full btn-premium-primary py-4 justify-center group"
+                                >
                                     <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                                     <span className="text-xs uppercase tracking-widest">Ver Panel Completo</span>
                                 </button>
@@ -441,9 +487,9 @@ export default function EmpresasPage() {
                             Distribución por Sector
                         </h3>
                         <div className="space-y-4">
-                            {Array.from(new Set(mockEmpresas.map((e) => e.sector))).map((sector) => {
-                                const count = mockEmpresas.filter((e) => e.sector === sector).length;
-                                const pct = Math.round((count / totalEmpresas) * 100);
+                            {Array.from(new Set(empresas.map((e) => e.sector))).map((sector) => {
+                                const count = empresas.filter((e) => e.sector === sector).length;
+                                const pct = totalEmpresas > 0 ? Math.round((count / totalEmpresas) * 100) : 0;
                                 return (
                                     <div key={sector} className="space-y-1.5">
                                         <div className="flex justify-between text-[9px] font-mono uppercase tracking-widest text-white/40">
@@ -490,6 +536,122 @@ export default function EmpresasPage() {
                     </div>
                 </div>
             </div>
+                </>
+            ) : (
+                <div className="space-y-12 animate-in slide-in-from-right-10 duration-700">
+                    {/* Detail View Header */}
+                    <div className="flex items-center justify-between">
+                        <button 
+                            onClick={() => setViewMode("directory")}
+                            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group"
+                        >
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            <span className="text-[10px] font-mono uppercase tracking-[0.2em]">Volver al Directorio</span>
+                        </button>
+                        <div className="text-right">
+                            <h2 className="text-3xl font-black uppercase italic text-white">{selectedEmpresa?.name}</h2>
+                            <p className="text-[10px] font-mono text-primary uppercase tracking-widest">Dashboard de Nodo Empresarial</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Neural Insights Card */}
+                        <div className="glass-panel p-8 rounded-3xl border-primary/40 bg-primary/5 space-y-6 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
+                                <Sparkles className="w-12 h-12 text-primary" />
+                            </div>
+                            <div className="flex items-center gap-3 relative z-10">
+                                <Zap className="w-6 h-6 text-primary animate-pulse" />
+                                <h3 className="text-lg font-black uppercase italic text-white">Neural Insights</h3>
+                            </div>
+                            <div className="space-y-4 relative z-10">
+                                <div className="p-4 rounded-2xl bg-black/40 border border-primary/20 space-y-2">
+                                    <p className="text-[10px] font-mono text-primary uppercase font-bold">Optimización Detectada</p>
+                                    <p className="text-xs text-white/70 leading-relaxed italic">
+                                        "El flujo de ventas sugiere mover el nodo de inventario a la periferia (LIMB) para reducir la latencia de sincronización en un 15%."
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-black/40 border border-emerald-400/20 space-y-2">
+                                    <p className="text-[10px] font-mono text-emerald-400 uppercase font-bold">Salud del Nodo</p>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-white/70">Coherencia Global</span>
+                                        <span className="text-xs font-black text-white">{selectedEmpresa?.reputacion}%</span>
+                                    </div>
+                                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                        <div className="h-full bg-emerald-400" style={{ width: `${selectedEmpresa?.reputacion}%` }} />
+                                    </div>
+                                </div>
+                            </div>
+                            <button className="w-full btn-premium-primary py-3 text-[10px] uppercase font-bold tracking-widest relative z-10">
+                                Aplicar Recomendación
+                            </button>
+                        </div>
+
+                        {/* Inventory Card */}
+                        <div className="glass-panel p-8 rounded-3xl border-primary/20 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Boxes className="w-6 h-6 text-primary" />
+                                    <h3 className="text-lg font-black uppercase italic text-white">Inventario</h3>
+                                </div>
+                                <button className="p-2 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                                    <Plus className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <div className="space-y-4">
+                                {inventory.length > 0 ? inventory.map((item) => (
+                                    <div key={item.id} className="flex justify-between items-center p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                                        <div>
+                                            <p className="text-xs font-bold text-white uppercase">{item.data.name}</p>
+                                            <p className="text-[9px] font-mono text-white/40">Stock: {item.data.stock} uds.</p>
+                                        </div>
+                                        <p className="text-sm font-black text-primary">{formatCurrency(item.data.price)}</p>
+                                    </div>
+                                )) : (
+                                    <p className="text-[10px] font-mono text-white/20 uppercase text-center py-8 italic">No hay productos registrados</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Sales History */}
+                        <div className="lg:col-span-2 glass-panel p-8 rounded-3xl border-secondary/20 space-y-6">
+                             <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <History className="w-6 h-6 text-secondary" />
+                                    <h3 className="text-lg font-black uppercase italic text-white">Flujo de Ventas</h3>
+                                </div>
+                                <button className="btn-premium-secondary px-6 py-2 text-[10px] uppercase font-bold tracking-widest">
+                                    Registrar Venta
+                                </button>
+                            </div>
+                            <div className="overflow-hidden rounded-2xl border border-white/5">
+                                <table className="w-full text-left">
+                                    <thead className="bg-white/[0.03] text-[9px] font-mono uppercase tracking-widest text-white/40">
+                                        <tr>
+                                            <th className="px-6 py-4">ID Transacción</th>
+                                            <th className="px-6 py-4">Cantidad</th>
+                                            <th className="px-6 py-4 text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {sales.length > 0 ? sales.map((sale) => (
+                                            <tr key={sale.id} className="text-[11px] hover:bg-white/[0.01] transition-colors">
+                                                <td className="px-6 py-4 font-mono text-white/60">{sale.id.slice(0, 8)}...</td>
+                                                <td className="px-6 py-4 text-white font-bold">{sale.data.quantity}</td>
+                                                <td className="px-6 py-4 text-right text-emerald-400 font-black">{formatCurrency(sale.data.total)}</td>
+                                            </tr>
+                                        )) : (
+                                            <tr>
+                                                <td colSpan={3} className="px-6 py-12 text-center text-[10px] font-mono text-white/20 uppercase italic">Esperando primera sinapsis de venta...</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
