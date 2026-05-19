@@ -9,7 +9,11 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@red-inteligente/neural-core": ["../../packages/neural-core"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

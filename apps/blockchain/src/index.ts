@@ -1,5 +1,5 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { Synapse, Block } from '@red-inteligente/neural-core';
+import { Synapse, Block } from '../../../packages/neural-core/index';
 import express from 'express';
 import cors from 'cors';
 import * as fs from 'fs';

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { Synapse } from '@red-inteligente/neural-core';
+import { Synapse } from '../../../packages/neural-core/index';
 
 dotenv.config();
 

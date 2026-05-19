@@ -1,4 +1,4 @@
-import { Block, Synapse } from '@red-inteligente/neural-core';
+import { Synapse, Block } from '../../../../packages/neural-core/index';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as os from 'os';
