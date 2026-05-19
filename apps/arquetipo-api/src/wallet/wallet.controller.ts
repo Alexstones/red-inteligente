@@ -16,4 +16,9 @@ export class WalletController {
   async transfer(@Request() req, @Body() data: { toAddress: string, amount: number }) {
     return this.walletService.transfer(req.user.tenantId, data.toAddress, data.amount);
   }
+
+  @Post('mine')
+  async claimMine(@Request() req, @Body() data: { hashrate: number }) {
+    return this.walletService.claimMiningReward(req.user.tenantId, data.hashrate);
+  }
 }

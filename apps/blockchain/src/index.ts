@@ -2,11 +2,14 @@ import { WebSocket, WebSocketServer } from 'ws';
 import { Synapse, Block } from '@red-inteligente/neural-core';
 import express from 'express';
 import cors from 'cors';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const P2P_PORT = process.env.P2P_PORT ? parseInt(process.env.P2P_PORT) : 6001;
 const HTTP_PORT = process.env.HTTP_PORT ? parseInt(process.env.HTTP_PORT) : 3002;
 const PEERS = process.env.PEERS ? process.env.PEERS.split(',') : [];
 const DIFFICULTY = 2;
+const DATA_PATH = path.join(__dirname, '../data/blockchain.json');
 
 class P2PNode {
   public blockchain: Block[] = [];
@@ -14,8 +17,8 @@ class P2PNode {
   private synapsePool: Synapse[] = [];
 
   constructor(private port: number) {
-    // 1. Bloque Génesis
-    this.createGenesisBlock();
+    // 1. Cargar o Inicializar Cadena
+    this.initChain();
 
     // 2. Servidor P2P
     const server = new WebSocketServer({ port });
@@ -26,10 +29,37 @@ class P2PNode {
     setInterval(() => this.minePendingSynapses(), 10000); // Intenta minar cada 10s
   }
 
+  private initChain() {
+    if (fs.existsSync(DATA_PATH)) {
+      try {
+        const data = fs.readFileSync(DATA_PATH, 'utf8');
+        this.blockchain = JSON.parse(data);
+        console.log(`[BLOCKCHAIN] Cadena cargada desde disco: ${this.blockchain.length} bloques.`);
+      } catch (error) {
+        console.error('[BLOCKCHAIN] Error al cargar cadena, generando nueva...', error);
+        this.createGenesisBlock();
+      }
+    } else {
+      this.createGenesisBlock();
+    }
+  }
+
+  private saveChain() {
+    try {
+      const dir = path.dirname(DATA_PATH);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(DATA_PATH, JSON.stringify(this.blockchain, null, 2));
+      console.log('[BLOCKCHAIN] Cadena persistida en disco.');
+    } catch (error) {
+      console.error('[BLOCKCHAIN] Error al persistir cadena:', error);
+    }
+  }
+
   private createGenesisBlock() {
     const genesis = new Block(0, [], '0');
-    this.blockchain.push(genesis);
-    console.log('[BLOCKCHAIN] Bloque Génesis generado.');
+    this.blockchain = [genesis];
+    this.saveChain();
+    console.log('[BLOCKCHAIN] Bloque Génesis generado y persistido.');
   }
 
   private initConnection(socket: WebSocket) {
@@ -71,7 +101,8 @@ class P2PNode {
   private handleChainSync(newChain: Block[]) {
     if (newChain.length > this.blockchain.length) {
       this.blockchain = newChain;
-      console.log('[BLOCKCHAIN] Cadena sincronizada con éxito.');
+      this.saveChain();
+      console.log('[BLOCKCHAIN] Cadena sincronizada y persistida con éxito.');
     }
   }
 
@@ -91,6 +122,7 @@ class P2PNode {
     this.blockchain.push(newBlock);
     this.synapsePool = [];
 
+    this.saveChain();
     this.broadcast({ type: 'CHAIN', data: this.blockchain });
   }
 

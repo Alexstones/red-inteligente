@@ -104,3 +104,13 @@ model Transaction {
   wallet      Wallet   @relation(fields: [walletId], references: [id])
   createdAt   DateTime @default(now())
 }
+
+// Registro de eventos de seguridad y sistema (usado por Sentinel)
+model SystemLog {
+  id        String   @id @default(uuid())
+  type      String
+  level     String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+}

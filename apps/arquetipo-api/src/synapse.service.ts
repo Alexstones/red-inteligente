@@ -4,15 +4,19 @@ import { WalletService } from './wallet.service';
 import { P2PClientService } from './p2p-client.service';
 import { AlbedrioService } from './albedrio/albedrio.service';
 
+import { SentinelService } from './sentinel.service';
+
 @Injectable()
 export class SynapseService implements OnModuleInit {
   private obelisk: Obelisk;
   private lastSynapseHash: string = '0';
+  private cluster: any[] = []; // Almacena las coordenadas 3D de las unidades
 
   constructor(
     private walletService: WalletService,
     private p2pClient: P2PClientService,
-    private albedrio: AlbedrioService
+    private albedrio: AlbedrioService,
+    private sentinel: SentinelService
   ) {}
 
   onModuleInit() {
@@ -24,6 +28,9 @@ export class SynapseService implements OnModuleInit {
    * Registra una acción como una sinapsis en la red.
    */
   async fireSynapse(tenantId: string, source: string, target: string, payload: any, weight: number = 1.0) {
+    // 0. Sentinel Defense
+    await this.sentinel.monitor(tenantId, source);
+
     const synapse = new Synapse(
       source,
       target,
@@ -49,7 +56,29 @@ export class SynapseService implements OnModuleInit {
       // Aquí se podrían disparar nuevas sinapsis automáticas
     }
 
+    // Actualizar topología 3D para el Cortex
+    this.updateTopology(synapse);
+
     return synapse;
+  }
+
+  private updateTopology(synapse: Synapse) {
+    const node = {
+      id: synapse.hash,
+      type: synapse.payload.type || 'SYNAPSE',
+      x: (Math.random() - 0.5) * 400,
+      y: (Math.random() - 0.5) * 400,
+      z: (Math.random() - 0.5) * 400,
+      weight: synapse.weight,
+      timestamp: Date.now()
+    };
+    
+    this.cluster.push(node);
+    if (this.cluster.length > 100) this.cluster.shift(); // Mantener solo las últimas 100 unidades activas
+  }
+
+  getTopology() {
+    return this.cluster;
   }
 
   getObelisk() {

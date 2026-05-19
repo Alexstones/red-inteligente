@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "Oculum — Red Inteligente",
-  description: "Portal de entrada al sistema Red Inteligente. ERP modular con IA y Blockchain.",
-  keywords: ["ERP", "blockchain", "IA", "multi-tenant", "Red Inteligente"],
+  title: "Nexus — Red Inteligente",
+  description: "Portal de entrada al sistema Red Inteligente. Ecosistema neural con IA y Blockchain.",
+  keywords: ["ERP", "blockchain", "IA", "Nexus", "Red Inteligente"],
 };
 
 export default function RootLayout({
@@ -26,7 +27,9 @@ export default function RootLayout({
         <div className="noise-overlay" />
         <div className="fixed inset-0 neural-grid pointer-events-none opacity-40" />
         <div className="relative z-10 min-h-screen">
-          {children}
+          <Providers>
+            {children}
+          </Providers>
         </div>
       </body>
 

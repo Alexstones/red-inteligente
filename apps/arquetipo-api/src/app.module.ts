@@ -1,38 +1,57 @@
-import { Module, Global } from '@nestjs/common';
-import { SynapseService } from './synapse.service';
-import { AuthModule } from './auth/auth.module';
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 import { NodesModule } from './nodes/nodes.module';
-import { BusinessModule } from './business/business.module';
-import { GovernanceModule } from './governance/governance.module';
-import { P2PClientService } from './p2p-client.service';
-import { AlbedrioModule } from './albedrio/albedrio.module';
-import { BotsModule } from './bots/bots.module';
+import { SynapseService } from './synapse.service';
 import { SystemModule } from './system/system.module';
-import { AIModule } from './ai/ai.module';
+import { AlbedrioModule } from './albedrio/albedrio.module';
+import { BusinessModule } from './business/business.module';
 import { TenantModule } from './tenant/tenant.module';
-import { WalletModule } from './wallet/wallet.module';
-
-@Global()
-@Module({
-  providers: [SynapseService, PrismaService, P2PClientService],
-  exports: [SynapseService, PrismaService, P2PClientService],
-})
-export class NeuralModule {}
+import { WalletService } from './wallet.service';
+import { WalletController } from './wallet/wallet.controller';
+import { P2PClientService } from './p2p-client.service';
+import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { GovernanceModule } from './governance/governance.module';
+import { SentinelService } from './sentinel.service';
+import { MarketOracleService } from './market-oracle.service';
+import { BridgeService } from './bridge.service';
+import { StakingService } from './staking.service';
+import { NexusVMService } from './nexus-vm.service';
+import { PrivacyService } from './privacy.service';
+import { BigDataService } from './big-data.service';
+import { ComplianceService } from './compliance.service';
 
 @Module({
   imports: [
-    NeuralModule, 
-    AuthModule, 
-    NodesModule, 
-    BusinessModule, 
-    GovernanceModule, 
-    AlbedrioModule,
-    BotsModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'secret',
+      signOptions: { expiresIn: '24h' },
+    }),
+    NodesModule,
     SystemModule,
-    AIModule,
+    AlbedrioModule,
+    BusinessModule,
     TenantModule,
-    WalletModule
+    AuthModule,
+    GovernanceModule,
+  ],
+  controllers: [AppController, WalletController],
+  providers: [
+    AppService, 
+    PrismaService, 
+    SynapseService, 
+    WalletService, 
+    P2PClientService, 
+    SentinelService,
+    MarketOracleService,
+    BridgeService,
+    StakingService,
+    NexusVMService,
+    PrivacyService,
+    BigDataService,
+    ComplianceService
   ],
 })
 export class AppModule {}

@@ -1,123 +1,93 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: oklch(0.7 0.25 180);
-  --color-primary-foreground: oklch(0.2 0.05 240);
-  --color-secondary: oklch(0.65 0.25 300);
+  --color-primary: oklch(0.5 0.25 180); /* Más oscuro para mejor contraste */
+  --color-primary-foreground: oklch(0.98 0.01 0);
+  --color-secondary: oklch(0.45 0.25 300);
   --color-secondary-foreground: oklch(0.98 0.01 0);
-  --color-background: oklch(0.12 0.02 240);
-  --color-foreground: oklch(0.98 0.01 0);
-  --color-muted: oklch(0.2 0.02 240);
-  --color-muted-foreground: oklch(0.6 0.02 240);
-  --color-accent: oklch(0.7 0.25 180);
-  --color-accent-foreground: oklch(0.98 0.01 0);
-  --color-destructive: oklch(0.45 0.2 25);
+  --color-background: oklch(1 0 0); /* Blanco Puro */
+  --color-foreground: oklch(0 0 0); /* NEGRO PURO */
+  --color-muted: oklch(0.9 0.02 0);
+  --color-muted-foreground: oklch(0.2 0.02 0);
+  --color-accent: oklch(0.5 0.25 180);
+  --color-accent-foreground: oklch(0 0 0);
+  --color-destructive: oklch(0.4 0.2 25);
   --color-destructive-foreground: oklch(0.98 0.01 0);
-  --color-border: oklch(0.2 0.02 240);
-  --color-input: oklch(0.2 0.02 240);
-  --color-ring: oklch(0.7 0.25 180);
+  --color-border: oklch(0.8 0.02 0);
+  --color-input: oklch(0.9 0.02 0);
+  --color-ring: oklch(0.5 0.25 180);
   --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
 }
 
 @layer base {
   body {
-    @apply bg-background text-foreground selection:bg-primary/30 selection:text-white;
+    @apply bg-background text-foreground selection:bg-black selection:text-white;
     font-family: 'Inter', system-ui, sans-serif;
     min-height: 100vh;
+    /* Watercolor Effect - Pure White Base */
     background-image: 
-      radial-gradient(at 0% 0%, rgba(0, 255, 255, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.08) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(0, 255, 255, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(0, 150, 255, 0.04) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(150, 0, 255, 0.04) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, white 0px, transparent 100%);
     background-attachment: fixed;
+    color: black !important; /* Fuerza el color negro en todo el cuerpo */
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight font-bold;
+    @apply tracking-tight font-black uppercase italic;
+    color: black !important;
+  }
+  
+  p, span, div, td, th, label {
+    color: black !important; /* Fuerza el color negro en prácticamente todos los elementos de texto */
   }
 }
 
-/* --- Premium Design Tokens --- */
-
-.neural-bg {
-  @apply bg-background;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(0, 255, 255, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(0, 255, 255, 0.05) 0px, transparent 50%);
-  background-attachment: fixed;
-}
+/* --- Absolute Contrast Design Tokens --- */
 
 .glass-panel {
-  @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.5)];
+  @apply bg-white/60 backdrop-blur-3xl border-2 border-black/10 shadow-[0_4px_24px_rgba(0,0,0,0.05)];
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-
 .glass-panel:hover {
-  @apply bg-white/[0.05] border-white/[0.15] shadow-[0_20px_40px_rgba(0,0,0,0.6)];
+  @apply border-black/20 shadow-[0_12px_40px_rgba(0,0,0,0.1)];
 }
 
 .neon-glow-primary {
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15), 0 0 40px rgba(0, 255, 255, 0.1);
-}
-
-.neon-glow-secondary {
-  box-shadow: 0 0 20px rgba(147, 51, 234, 0.15), 0 0 40px rgba(147, 51, 234, 0.1);
+  filter: drop-shadow(0 0 5px rgba(0, 150, 255, 0.2));
 }
 
 .neural-grid {
-  background-size: 40px 40px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  background-size: 80px 80px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50;
-}
-
-.animate-pulse-slow {
-  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-
-.neural-line {
-  position: absolute;
-  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
-  height: 1px;
-  width: 100%;
-  animation: scan 8s linear infinite;
-}
-
-@keyframes scan {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
+  color: black !important; /* Elimina el degradado para máxima legibilidad */
 }
 
 /* --- Interactive Elements --- */
 
 .input-premium {
-  @apply w-full bg-white/[0.02] border border-white/[0.08] rounded-2xl px-5 py-4 outline-none 
-         focus:border-primary/50 focus:bg-white/[0.04] focus:ring-4 focus:ring-primary/10 
-         transition-all duration-300 text-sm placeholder:text-white/20;
+  @apply w-full bg-white border-2 border-black/10 rounded-2xl px-5 py-4 outline-none 
+         focus:border-black focus:ring-4 focus:ring-black/5 
+         transition-all duration-300 text-sm placeholder:text-black/40 text-black font-bold;
 }
 
 .btn-premium-primary {
-  @apply relative overflow-hidden flex items-center justify-center gap-3 bg-white text-background 
-         font-bold py-4 px-8 rounded-2xl transition-all duration-500 
-         hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] 
-         active:scale-[0.98] disabled:opacity-50;
+  @apply relative overflow-hidden flex items-center justify-center gap-3 bg-black text-white 
+         font-black py-4 px-10 rounded-2xl transition-all duration-500 
+         hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(0,0,0,0.2)] 
+         active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest italic;
 }
 
 .btn-premium-secondary {
-  @apply flex items-center justify-center gap-3 bg-white/[0.03] border border-white/[0.08] 
-         hover:bg-white/[0.05] hover:border-white/[0.15] text-white font-semibold 
-         py-4 px-8 rounded-2xl transition-all duration-300 active:scale-[0.98];
+  @apply flex items-center justify-center gap-3 bg-white border-2 border-black/10 
+         hover:border-black hover:bg-black/5 text-black font-black 
+         py-4 px-10 rounded-2xl transition-all duration-300 active:scale-[0.98] uppercase tracking-widest italic;
 }
 
 /* Noise Texture Overlay */
@@ -128,9 +98,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.015;
+  opacity: 0.04;
   z-index: 9999;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
-
-

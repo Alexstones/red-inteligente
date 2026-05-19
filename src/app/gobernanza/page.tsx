@@ -156,7 +156,7 @@ export default function GovernancePage() {
                         return (
                             <div key={prop.id} className="glass-panel rounded-[2rem] p-10 border-white/5 hover:border-primary/20 transition-all group relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:scale-110 transition-transform">
-                                    <prop.status === "active" ? <Clock className="w-32 h-32" /> : <ShieldCheck className="w-32 h-32" />
+                                    {prop.status === "active" ? <Clock className="w-32 h-32" /> : <ShieldCheck className="w-32 h-32" />}
                                 </div>
                                 
                                 <div className="flex flex-col lg:flex-row gap-10 relative z-10">

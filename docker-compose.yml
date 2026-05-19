@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Base de Datos Neural (PostgreSQL)
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: nexus
+      POSTGRES_PASSWORD: nexus_password
+      POSTGRES_DB: nexus_db
+    ports:
+      - "5432:5432"
+
+  # Core del Ecosistema (Arquetipo API)
+  arquetipo-api:
+    build:
+      context: .
+      dockerfile: ./apps/arquetipo-api/Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://nexus:nexus_password@database:5432/nexus_db?schema=public"
+      JWT_SECRET: "nexus_super_secret_key"
+      BLOCKCHAIN_URL: "ws://blockchain-node:6001"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+
+  # Nodo Blockchain P2P
+  blockchain-node:
+    build:
+      context: .
+      dockerfile: ./apps/blockchain/Dockerfile
+    environment:
+      P2P_PORT: 6001
+      HTTP_PORT: 3002
+    ports:
+      - "6001:6001"
+      - "3002:3002"
+
+  # Dashboard Administrativo
+  nexus-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:3001"
+    ports:
+      - "3000:3000"
+
+  # Nexus PC Miner (Simulado en contenedor)
+  nexus-pc-miner:
+    build:
+      context: .
+      dockerfile: ./apps/nexus-pc/Dockerfile
+    environment:
+      API_BASE_URL: "http://arquetipo-api:3001"
+      BLOCKCHAIN_URL: "http://blockchain-node:3002"
+    depends_on:
+      - arquetipo-api
+      - blockchain-node

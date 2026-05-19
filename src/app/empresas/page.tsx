@@ -91,8 +91,8 @@ export default function EmpresasPage() {
         setViewMode("detail");
         try {
             const [inv, sls] = await Promise.all([
-                nodesApi.getInventory(),
-                nodesApi.getSales()
+                nodesApi.getInventory(empresa.id),
+                nodesApi.getSales(empresa.id)
             ]);
             setInventory(inv);
             setSales(sls);

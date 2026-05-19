@@ -12,13 +12,30 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { oracleApi } from "@/lib/api";
 
 export default function AIDashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
+    const [oracleResponse, setOracleResponse] = useState<string>("");
+    const [isReasoning, setIsReasoning] = useState(false);
 
     useEffect(() => {
         setTimeout(() => setIsLoading(false), 800);
     }, []);
+
+    const handleOracleReason = async () => {
+        setIsReasoning(true);
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const res = await oracleApi.reason("Analiza el estado actual de la red y sugiere optimizaciones.", user.tenantId || "global");
+            setOracleResponse(res.answer);
+        } catch (error) {
+            console.error("Oracle error:", error);
+            setOracleResponse("Error de conexión con el Oráculo Neural.");
+        } finally {
+            setIsReasoning(false);
+        }
+    };
 
     const insights = [
         { title: "Densidad Sináptica", value: "84%", trend: "+5%", icon: Zap, color: "text-primary" },
@@ -125,9 +142,15 @@ export default function AIDashboardPage() {
                             <p className="text-[10px] font-mono font-black uppercase tracking-widest">Sugerencia del Oráculo</p>
                         </div>
                         <p className="text-xs text-white/70 leading-relaxed italic">
-                            "Se observa una alta densidad en la red de Querétaro. Sugerencia: Redistribuir nodos de carga a la periferia para mantener coherencia por encima del 99%."
+                            {oracleResponse || '"Iniciando conexión neural... El Oráculo está analizando los bloques actuales."'}
                         </p>
-                        <button className="w-full btn-premium-primary py-3 text-[10px] uppercase font-bold tracking-widest mt-2">Aplicar Optimización</button>
+                        <button 
+                            onClick={handleOracleReason}
+                            disabled={isReasoning}
+                            className="w-full btn-premium-primary py-3 text-[10px] uppercase font-bold tracking-widest mt-2 disabled:opacity-50"
+                        >
+                            {isReasoning ? "Razonando..." : "Consultar Oráculo"}
+                        </button>
                     </div>
                 </div>
             </div>

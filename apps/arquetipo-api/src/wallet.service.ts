@@ -86,4 +86,10 @@ export class WalletService {
       return { status: 'success' };
     });
   }
+
+  async claimMiningReward(tenantId: string, hashrate: number) {
+    // Recompensa basada en hashrate simulado
+    const reward = parseFloat((hashrate / 1000).toFixed(4));
+    return this.addReward(tenantId, reward, `Mining Reward (Hashrate: ${hashrate} H/s)`);
+  }
 }

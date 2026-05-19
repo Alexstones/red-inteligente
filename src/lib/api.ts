@@ -49,9 +49,9 @@ export const nodesApi = {
     method: 'POST',
     body: JSON.stringify(sale),
   }),
-  getInventory: () => apiFetch('/business/inventory'),
-  getSales: () => apiFetch('/business/sales'),
-  getFinance: () => apiFetch('/business/finance'),
+  getInventory: (tenantId?: string) => apiFetch(`/business/inventory${tenantId ? `?tenantId=${tenantId}` : ''}`),
+  getSales: (tenantId?: string) => apiFetch(`/business/sales${tenantId ? `?tenantId=${tenantId}` : ''}`),
+  getFinance: (tenantId?: string) => apiFetch(`/business/finance${tenantId ? `?tenantId=${tenantId}` : ''}`),
 };
 
 export const tenantsApi = {
@@ -60,6 +60,14 @@ export const tenantsApi = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+};
+
+export const oracleApi = {
+  reason: (prompt: string, tenantId: string) => fetch('http://localhost:8000/reason', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, tenant_id: tenantId }),
+  }).then(res => res.json()),
 };
 
 export const walletApi = {

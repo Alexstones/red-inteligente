@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Query } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -23,17 +23,20 @@ export class BusinessController {
   }
 
   @Get('inventory')
-  async getInventory(@Request() req) {
-    return this.businessService.getInventory(req.user.tenantId);
+  async getInventory(@Request() req, @Query('tenantId') tenantId?: string) {
+    const targetTenantId = (req.user.role === 'admin' && tenantId) ? tenantId : req.user.tenantId;
+    return this.businessService.getInventory(targetTenantId);
   }
 
   @Get('sales')
-  async getSales(@Request() req) {
-    return this.businessService.getSales(req.user.tenantId);
+  async getSales(@Request() req, @Query('tenantId') tenantId?: string) {
+    const targetTenantId = (req.user.role === 'admin' && tenantId) ? tenantId : req.user.tenantId;
+    return this.businessService.getSales(targetTenantId);
   }
 
   @Get('finance')
-  async getFinance(@Request() req) {
-    return this.businessService.getFinance(req.user.tenantId);
+  async getFinance(@Request() req, @Query('tenantId') tenantId?: string) {
+    const targetTenantId = (req.user.role === 'admin' && tenantId) ? tenantId : req.user.tenantId;
+    return this.businessService.getFinance(targetTenantId);
   }
 }
